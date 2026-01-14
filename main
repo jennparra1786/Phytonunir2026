@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""
+Interactive grade calculator with safer validation and testable functions.
+"""
+
+from typing import Iterable, List
+
+
+def calcular_promedio(notas: Iterable[float]) -> float:
+    """
+    Calcula el promedio de una secuencia de números.
+    Lanza ValueError si la secuencia está vacía.
+    """
+    notas_list = list(notas)
+    if not notas_list:
+        raise ValueError("La lista de notas está vacía.")
+    return sum(notas_list) / len(notas_list)
+
+
+def estado_estudiante(promedio: float, umbral: float = 3.0) -> str:
+    """
+    Devuelve 'Aprobado' si el promedio >= umbral, si no 'Reprobado'.
+    """
+    return "Aprobado" if promedio >= umbral else "Reprobado"
+
+
+def _solicitar_entero(prompt: str, minimo: int = 1) -> int:
+    while True:
+        try:
+            valor = int(input(prompt).strip())
+            if valor < minimo:
+                print(f"Por favor ingrese un número entero >= {minimo}.")
+                continue
+            return valor
+        except ValueError:
+            print("Entrada inválida. Ingrese un número entero.")
+        except KeyboardInterrupt:
+            print("\nInterrumpido por el usuario.")
+            raise
+
+
+def _solicitar_flotante(prompt: str, minimo: float = 0.0, maximo: float = 5.0) -> float:
+    while True:
+        try:
+            valor = float(input(prompt).strip())
+            if not (minimo <= valor <= maximo):
+                print(f"Por favor ingrese un número entre {minimo} y {maximo}.")
+                continue
+            return valor
+        except ValueError:
+            print("Entrada inválida. Ingrese un número válido (ej. 3.5).")
+        except KeyboardInterrupt:
+            print("\nInterrumpido por el usuario.")
+            raise
+
+
+def main() -> None:
+    try:
+        materias = _solicitar_entero("Ingrese la cantidad de materias: ", minimo=1)
+        promedios: List[float] = []
+
+        for i in range(materias):
+            print(f"\nMateria {i + 1}")
+            nombre = input("Nombre de la materia: ").strip() or f"Materia_{i+1}"
+            cantidad_notas = _solicitar_entero("Cantidad de notas: ", minimo=1)
+            notas: List[float] = []
+            for j in range(cantidad_notas):
+                nota = _solicitar_flotante(f"Ingrese la nota {j + 1}: ", minimo=0.0, maximo=5.0)
+                notas.append(nota)
+
+            promedio_materia = calcular_promedio(notas)
+            promedios.append(promedio_materia)
+            print(f"Promedio de {nombre}: {promedio_materia:.2f}")
+
+        promedio_general = calcular_promedio(promedios)
+        estado = estado_estudiante(promedio_general)
+
+        print("\n--- Resultados Finales ---")
+        print(f"Promedio general: {promedio_general:.2f}")
+        print(f"Estado del estudiante: {estado}")
+    except ValueError as ve:
+        print(f"Error: {ve}")
+    except KeyboardInterrupt:
+        print("Ejecución cancelada.")
+
+
+if __name__ == "__main__":
+    main()
